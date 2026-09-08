@@ -120,18 +120,24 @@ window that skips it silently loses `clear()`.
 `window.create` plus `protect`. Use it instead of `window.create` for any window
 over a GfxTerm.
 
-### `GfxTerm.setFont(data)` / `GfxTerm.getFont()`
+### `GfxTerm.setFont(data [, w, h])` / `GfxTerm.getFont() -> data, w, h`
 
-Swap the embedded font. `data` is 256 × 9 bytes: glyph *g* occupies bytes
-`g*9+1 .. g*9+9`, one bitmask per row, bit 5 (32) = leftmost pixel of a 6-wide
-glyph.
+Replace the font, and optionally its metrics. Defaults to 6 × 9 — the built-in
+ComputerCraft font — which is what makes the output identical to a real
+terminal.
 
-> **You can change the typeface, not the metrics.** Cells are 6 × 9 throughout —
-> that is what makes the output identical to a real CC terminal, and it is baked
-> into the glyph decoder, not just into a pair of constants. Draw whatever
-> glyphs you like inside that box; a font of a different size will not work.
-> (MCJack123's original took BDF files at arbitrary sizes — that flexibility was
-> traded away deliberately for exactness. See [CREDITS.md](CREDITS.md).)
+Each glyph row is a **big-endian integer in `ceil(w / 8)` bytes**, and pixel *x*
+is bit `(w - 1 - x)` of it, so the glyph sits right-aligned in its bytes. Glyph
+*g* starts at byte `g * h * ceil(w / 8) + 1`. At 6 × 9 that reduces to one byte
+per row with bit 5 (32) as the leftmost pixel.
+
+```lua
+GfxTerm.setFont(myData, 8, 12)     -- an 8x12 font
+local data, w, h = GfxTerm.getFont()
+```
+
+> **Set the font before creating terminals.** `new()` captures the metrics, so a
+> GfxTerm already running is never disturbed by a later `setFont`.
 
 ### `GfxTerm.cellToPx(col, row) -> x, y`
 
@@ -151,6 +157,21 @@ This exists because of a specific bug: a window that repaints its background
 each frame paints *over* your pixels, and a frame presented between the two
 writes shows a black band. Masking the viewport removes the problem at the
 source. Call with no arguments to clear it.
+
+### `gfx.resize([cols, rows])  -> changed`
+
+**Adopt a new terminal size.** A GfxTerm's grid is fixed when it is created, so
+it does not notice the window being resized. Call this on `term_resize`:
+
+```lua
+if ev == "term_resize" then gfx.resize() end
+```
+
+The shadow buffer is carried across, keeping whatever still fits, so the caret
+can still erase itself correctly. The screen is **not** repainted — only the
+model is corrected, because only you know what belongs on it. Redraw afterwards.
+
+Returns `true` if the size actually changed.
 
 ### `gfx.blinkCursor()`
 

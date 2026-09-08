@@ -86,20 +86,55 @@ GfxTerm._URL     = "https://github.com/Xylopia24/CC-Programs-Repo"
 -- bit 5 (32) = leftmost pixel of a 6-wide glyph. See FONT-NOTICE.md.
 local FONT = "\0\0\0\0\0\0\0\0\0\28\34\54\34\42\34\28\0\0\28\62\42\62\34\54\28\0\0\0\20\62\62\62\28\8\0\0\0\8\28\62\28\8\0\0\0\8\28\8\62\62\8\28\0\0\0\8\28\62\62\8\28\0\0\0\0\12\30\30\12\0\0\0\63\63\51\33\33\51\63\63\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\14\6\26\36\36\24\0\0\28\34\34\34\28\8\28\8\0\0\0\0\0\0\0\0\0\0\0\30\18\30\16\48\48\0\0\0\31\17\31\17\51\51\0\0\0\32\56\62\56\32\0\0\0\0\2\14\62\14\2\0\0\0\8\28\62\8\8\62\28\8\0\18\18\18\18\18\0\18\0\0\30\42\42\26\10\10\10\0\0\30\48\44\34\26\6\60\0\0\0\0\0\0\0\30\30\0\0\8\28\62\8\62\28\8\62\0\8\28\62\8\8\8\8\0\0\8\8\8\8\62\28\8\0\0\0\8\12\62\12\8\0\0\0\0\8\24\62\24\8\0\0\0\0\0\0\0\32\32\62\0\0\0\0\18\63\18\0\0\0\0\0\8\8\28\28\62\0\0\0\0\62\28\28\8\8\0\0\0\0\0\0\0\0\0\0\0\0\8\8\8\8\8\0\8\0\0\10\10\20\0\0\0\0\0\0\20\20\62\20\62\20\20\0\0\8\30\32\28\2\60\8\0\0\34\36\4\8\16\18\34\0\0\8\20\8\26\44\36\26\0\0\4\4\8\0\0\0\0\0\0\6\8\16\16\16\8\6\0\0\24\4\2\2\2\4\24\0\0\0\0\18\12\18\0\0\0\0\0\8\8\62\8\8\0\0\0\0\0\0\0\0\8\8\8\0\0\0\0\62\0\0\0\0\0\0\0\0\0\0\8\8\0\0\2\4\4\8\16\16\32\0\0\28\34\38\42\50\34\28\0\0\8\24\8\8\8\8\62\0\0\28\34\2\12\16\34\62\0\0\28\34\2\12\2\34\28\0\0\6\10\18\34\62\2\2\0\0\62\32\60\2\2\34\28\0\0\12\16\32\60\34\34\28\0\0\62\34\2\4\8\8\8\0\0\28\34\34\28\34\34\28\0\0\28\34\34\30\2\4\24\0\0\0\8\8\0\0\8\8\0\0\0\8\8\0\0\8\8\8\0\2\4\8\16\8\4\2\0\0\0\0\62\0\0\62\0\0\0\16\8\4\2\4\8\16\0\0\28\34\2\4\8\0\8\0\0\30\33\45\45\47\32\30\0\0\28\34\62\34\34\34\34\0\0\60\34\60\34\34\34\60\0\0\28\34\32\32\32\34\28\0\0\60\34\34\34\34\34\60\0\0\62\32\56\32\32\32\62\0\0\62\32\56\32\32\32\32\0\0\30\32\38\34\34\34\28\0\0\34\34\62\34\34\34\34\0\0\28\8\8\8\8\8\28\0\0\2\2\2\2\2\34\28\0\0\34\36\56\36\34\34\34\0\0\32\32\32\32\32\32\62\0\0\34\54\42\34\34\34\34\0\0\34\50\42\38\34\34\34\0\0\28\34\34\34\34\34\28\0\0\60\34\60\32\32\32\32\0\0\28\34\34\34\34\36\26\0\0\60\34\60\34\34\34\34\0\0\30\32\28\2\2\34\28\0\0\62\8\8\8\8\8\8\0\0\34\34\34\34\34\34\28\0\0\34\34\34\34\20\20\8\0\0\34\34\34\34\42\54\34\0\0\34\20\8\20\34\34\34\0\0\34\20\8\8\8\8\8\0\0\62\2\4\8\16\32\62\0\0\28\16\16\16\16\16\28\0\0\32\16\16\8\4\4\2\0\0\28\4\4\4\4\4\28\0\0\8\20\34\0\0\0\0\0\0\0\0\0\0\0\0\0\62\0\8\8\4\0\0\0\0\0\0\0\0\28\2\30\34\30\0\0\32\32\44\50\34\34\60\0\0\0\0\28\34\32\34\28\0\0\2\2\26\38\34\34\30\0\0\0\0\28\34\62\32\30\0\0\6\8\30\8\8\8\8\0\0\0\0\30\34\34\30\2\60\0\32\32\44\50\34\34\34\0\0\8\0\8\8\8\8\8\0\0\2\0\2\2\2\34\34\28\0\16\16\18\20\24\20\18\0\0\8\8\8\8\8\8\4\0\0\0\0\52\42\42\34\34\0\0\0\0\60\34\34\34\34\0\0\0\0\28\34\34\34\28\0\0\0\0\44\50\34\60\32\32\0\0\0\26\38\34\30\2\2\0\0\0\44\50\32\32\32\0\0\0\0\30\32\28\2\60\0\0\8\8\28\8\8\8\4\0\0\0\0\34\34\34\34\30\0\0\0\0\34\34\34\20\8\0\0\0\0\34\34\42\42\30\0\0\0\0\34\20\8\20\34\0\0\0\0\34\34\34\30\2\60\0\0\0\62\4\8\16\62\0\0\6\8\8\16\8\8\6\0\0\8\8\8\8\8\8\8\0\0\24\4\4\2\4\4\24\0\0\25\38\0\0\0\0\0\0\0\18\36\9\18\36\9\18\36\9\0\0\0\0\0\0\0\0\0\56\56\56\0\0\0\0\0\0\7\7\7\0\0\0\0\0\0\63\63\63\0\0\0\0\0\0\0\0\0\56\56\56\0\0\0\56\56\56\56\56\56\0\0\0\7\7\7\56\56\56\0\0\0\63\63\63\56\56\56\0\0\0\0\0\0\7\7\7\0\0\0\56\56\56\7\7\7\0\0\0\7\7\7\7\7\7\0\0\0\63\63\63\7\7\7\0\0\0\0\0\0\63\63\63\0\0\0\56\56\56\63\63\63\0\0\0\7\7\7\63\63\63\0\0\0\63\63\63\63\63\63\0\0\0\0\0\0\0\0\0\56\56\56\56\56\56\0\0\0\56\56\56\7\7\7\0\0\0\56\56\56\63\63\63\0\0\0\56\56\56\0\0\0\56\56\56\56\56\56\56\56\56\56\56\56\56\56\56\7\7\7\56\56\56\56\56\56\63\63\63\56\56\56\56\56\56\0\0\0\7\7\7\56\56\56\56\56\56\7\7\7\56\56\56\7\7\7\7\7\7\56\56\56\63\63\63\7\7\7\56\56\56\0\0\0\63\63\63\56\56\56\56\56\56\63\63\63\56\56\56\7\7\7\63\63\63\56\56\56\63\63\63\63\63\63\56\56\56\0\0\0\0\0\0\0\0\0\8\0\8\8\8\8\8\0\0\0\8\28\34\32\34\28\8\0\12\18\16\60\16\16\62\0\0\0\34\28\34\34\34\28\34\0\34\20\62\8\62\8\8\0\0\8\8\8\0\8\8\8\0\0\30\48\44\34\26\6\60\0\0\20\0\0\0\0\0\0\0\0\0\30\37\41\41\37\30\0\0\24\4\28\36\28\0\0\0\0\0\0\10\20\40\20\10\0\0\0\0\0\62\2\2\0\0\0\0\0\0\62\0\0\0\0\0\0\30\45\45\43\33\30\0\0\62\0\0\0\0\0\0\0\0\24\36\36\24\0\0\0\0\0\0\8\8\62\8\8\0\62\0\32\16\48\32\48\0\0\0\0\48\16\48\16\48\0\0\0\0\16\32\0\0\0\0\0\0\0\0\0\34\34\34\34\61\32\32\30\42\42\26\10\10\10\0\0\0\0\0\12\12\0\0\0\0\0\0\0\0\0\0\4\8\0\16\48\16\16\56\0\0\0\0\0\28\34\34\34\28\0\0\0\0\0\40\20\10\20\40\0\0\34\36\4\8\22\22\34\0\0\34\36\4\8\18\20\38\0\0\50\20\52\8\22\22\34\0\0\8\0\8\16\32\34\28\0\0\48\0\28\34\62\34\34\0\0\6\0\28\34\62\34\34\0\0\28\34\28\34\62\34\34\0\0\20\40\28\34\62\34\34\0\0\20\0\28\34\62\34\34\0\0\8\0\28\34\62\34\34\0\0\30\40\40\60\40\40\46\0\0\28\34\32\32\34\28\4\8\0\48\0\62\32\60\32\62\0\0\6\0\62\32\60\32\62\0\0\28\34\62\32\60\32\62\0\0\20\0\62\32\60\32\62\0\0\24\0\28\8\8\8\28\0\0\12\0\28\8\8\8\28\0\0\8\20\28\8\8\8\28\0\0\20\0\28\8\8\8\28\0\0\60\34\34\50\34\34\60\0\0\10\20\34\50\42\38\34\0\0\48\28\34\34\34\34\28\0\0\6\28\34\34\34\34\28\0\0\28\34\28\34\34\34\28\0\0\20\40\28\34\34\34\28\0\0\20\28\34\34\34\34\28\0\0\0\34\20\8\20\34\0\0\0\28\34\38\42\50\34\28\0\0\48\0\34\34\34\34\28\0\0\6\0\34\34\34\34\28\0\0\8\20\0\34\34\34\28\0\0\20\0\34\34\34\34\28\0\0\6\0\34\20\8\8\8\0\0\28\8\12\10\12\8\28\0\0\60\34\44\34\34\34\44\32\0\48\0\28\2\30\34\30\0\0\6\0\28\2\30\34\30\0\0\28\34\28\2\30\34\30\0\0\20\40\28\2\30\34\30\0\0\20\0\28\2\30\34\30\0\0\8\0\28\2\30\34\30\0\0\0\0\22\41\62\40\23\0\0\0\28\34\32\34\28\4\8\0\48\0\28\34\62\32\30\0\0\6\0\28\34\62\32\30\0\0\28\34\28\34\62\32\30\0\0\20\0\28\34\62\32\30\0\0\24\0\8\8\8\8\8\0\0\12\0\8\8\8\8\8\0\0\8\20\8\8\8\8\8\0\0\20\0\8\8\8\8\8\0\0\8\4\30\34\34\34\28\0\0\20\40\60\34\34\34\34\0\0\48\0\28\34\34\34\28\0\0\6\0\28\34\34\34\28\0\0\28\34\28\34\34\34\28\0\0\20\40\28\34\34\34\28\0\0\20\0\28\34\34\34\28\0\0\0\8\0\62\0\8\0\0\0\0\0\28\38\42\50\28\0\0\48\0\34\34\34\34\30\0\0\6\0\34\34\34\34\30\0\0\8\20\0\34\34\34\30\0\0\20\0\34\34\34\34\30\0\0\6\0\34\34\34\30\2\60\0\24\8\12\10\12\8\28\0\0\20\0\34\34\34\30\2\60\0"
 
+-- Font metrics. The embedded font is 6x9; a replacement may be any size.
 local CELL_W, CELL_H = 6, 9
+local FONT_BPR = 1                       -- bytes per glyph row = ceil(w / 8)
+local FONT_MASK = {}                     -- pixel x -> bit within the row value
 GfxTerm.CELL_W, GfxTerm.CELL_H = CELL_W, CELL_H
 
---- Replace the embedded font.
--- @param data string of 256*9 bytes, laid out as described above.
-function GfxTerm.setFont(data)
-    if type(data) ~= "string" or #data < 256 * 9 then
-        error("setFont: expected a string of at least " .. (256 * 9) .. " bytes", 2)
+local function buildMask(w)
+    local m = {}
+    for x = 0, w - 1 do m[x] = 2 ^ (w - 1 - x) end
+    return m
+end
+FONT_MASK = buildMask(CELL_W)
+
+--- Replace the font, and optionally its metrics.
+--
+-- Each glyph row is a big-endian integer in `ceil(w / 8)` bytes, and pixel x is
+-- bit `(w - 1 - x)` of it - so the glyph sits right-aligned in its bytes. Glyph
+-- *g* starts at byte `g * h * ceil(w / 8) + 1`. At the default 6x9 that reduces
+-- to one byte per row with bit 5 as the leftmost pixel.
+--
+-- Set the font BEFORE creating terminals: `new()` captures the metrics, so a
+-- terminal already running is never disturbed by a later change.
+--
+-- @param data string of at least 256 * h * ceil(w / 8) bytes
+-- @param w    glyph width in pixels  (default 6)
+-- @param h    glyph height in pixels (default 9)
+function GfxTerm.setFont(data, w, h)
+    w, h = w or 6, h or 9
+    if type(data) ~= "string" then error("setFont: data must be a string", 2) end
+    if type(w) ~= "number" or w < 1 or w > 32 or w % 1 ~= 0 then
+        error("setFont: width must be an integer 1-32 (got " .. tostring(w) .. ")", 2)
     end
-    FONT = data
+    if type(h) ~= "number" or h < 1 or h % 1 ~= 0 then
+        error("setFont: height must be a positive integer (got " .. tostring(h) .. ")", 2)
+    end
+    local bpr = math.ceil(w / 8)
+    local need = 256 * h * bpr
+    if #data < need then
+        error("setFont: expected at least " .. need .. " bytes for a " .. w .. "x" .. h
+              .. " font, got " .. #data, 2)
+    end
+    FONT, CELL_W, CELL_H, FONT_BPR = data, w, h, bpr
+    FONT_MASK = buildMask(w)
+    GfxTerm.CELL_W, GfxTerm.CELL_H = w, h
 end
 
 --- The font currently in use.
-function GfxTerm.getFont() return FONT end
+-- @return data, width, height
+function GfxTerm.getFont() return FONT, CELL_W, CELL_H end
 
 -- CC colour value <-> palette index, and blit's hex digits <-> index.
 local IDX = {}
@@ -107,9 +142,6 @@ for k = 0, 15 do IDX[2 ^ k] = k end
 local HEX = "0123456789abcdef"
 local HEXIDX = {}
 for k = 0, 15 do HEXIDX[HEX:sub(k + 1, k + 1)] = k end
-local MASK = {}
-for x = 0, 5 do MASK[x] = 2 ^ (5 - x) end
-
 local unpack_ = table.unpack or unpack     -- CC ships both Lua 5.1 and 5.2 flavours
 
 --- Pixel coordinate of the top-left of a cell. Cells are 1-based, pixels 0-based.
@@ -235,7 +267,14 @@ end
 function GfxTerm.new(native)
     native = native or term.native()
 
-    local SCREEN_W, SCREEN_H, COLS, ROWS = GfxTerm.size(native)
+    -- Metrics are captured here, so GfxTerm.setFont later cannot corrupt a
+    -- terminal that is already drawing.
+    local CW, CH, BPR, MASK = CELL_W, CELL_H, FONT_BPR, FONT_MASK
+    local FDATA = FONT
+
+    local cols0, rows0 = native.getSize()
+    local COLS, ROWS = cols0, rows0
+    local SCREEN_W, SCREEN_H = COLS * CW, ROWS * CH
 
     local t = {}
     local cx, cy = 1, 1
@@ -247,9 +286,12 @@ function GfxTerm.new(native)
     -- cursor has to remember its own contents. Kept as three flat arrays
     -- rather than a table per cell - 2000 small tables is a lot of garbage.
     local shCh, shFg, shBg = {}, {}, {}
+    local function blankRow(a, b, c, from, to, f, bgi)
+        for x = from, to do a[x], b[x], c[x] = 32, f or 0, bgi or 15 end
+    end
     for y = 1, ROWS do
         local a, b, c = {}, {}, {}
-        for x = 1, COLS do a[x], b[x], c[x] = 32, 0, 15 end
+        blankRow(a, b, c, 1, COLS)
         shCh[y], shFg[y], shBg[y] = a, b, c
     end
 
@@ -259,7 +301,7 @@ function GfxTerm.new(native)
         return i
     end
 
-    -- glyph cache: (byte, fg, bg) -> 9 row strings of 6 bytes each
+    -- glyph cache: (byte, fg, bg) -> CH row strings of CW bytes each
     local cache = {}
     local function glyph(byte, f, b)
         local key = byte * 256 + f * 16 + b
@@ -267,11 +309,13 @@ function GfxTerm.new(native)
         if g then return g end
         g = {}
         local fc, bc = string.char(f), string.char(b)
-        local base = byte * 9
-        for r = 1, 9 do
-            local bits = FONT:byte(base + r) or 0
+        local base = byte * CH * BPR
+        for r = 1, CH do
+            -- the row is a big-endian integer across BPR bytes
+            local bits, off = 0, base + (r - 1) * BPR
+            for k = 1, BPR do bits = bits * 256 + (FDATA:byte(off + k) or 0) end
             local s = {}
-            for x = 0, 5 do
+            for x = 0, CW - 1 do
                 s[x + 1] = bit32.band(bits, MASK[x]) ~= 0 and fc or bc
             end
             g[r] = table.concat(s)
@@ -293,7 +337,8 @@ function GfxTerm.new(native)
 
     -- Rasterise chars i0..i1 of `text` (run starting at cell x0) as one blit.
     local function emit(text, fgs, bgs, x0, i0, i1)
-        local rows = { {}, {}, {}, {}, {}, {}, {}, {}, {} }
+        local rows = {}
+        for r = 1, CH do rows[r] = {} end
         local j = 0
         local rowCh, rowFg, rowBg = shCh[cy], shFg[cy], shBg[cy]
         for i = i0, i1 do
@@ -301,14 +346,14 @@ function GfxTerm.new(native)
             local ch = text:byte(i)
             local f, b = fgs and fgs[i] or fg, bgs and bgs[i] or bg
             local g = glyph(ch, f, b)
-            for r = 1, 9 do rows[r][j] = g[r] end
+            for r = 1, CH do rows[r][j] = g[r] end
             local col = x0 + i - 1
             if rowCh and col >= 1 and col <= COLS then
                 rowCh[col], rowFg[col], rowBg[col] = ch, f, b
             end
         end
-        for r = 1, 9 do rows[r] = table.concat(rows[r]) end
-        native.drawPixels((x0 + i0 - 2) * CELL_W, (cy - 1) * CELL_H, rows)
+        for r = 1, CH do rows[r] = table.concat(rows[r]) end
+        native.drawPixels((x0 + i0 - 2) * CW, (cy - 1) * CH, rows)
     end
 
     -- ── Cursor ─────────────────────────────────────────────────────────────
@@ -322,7 +367,7 @@ function GfxTerm.new(native)
     local function paintCell(x, y)
         if not inGrid(x, y) then return end
         local g = glyph(shCh[y][x], shFg[y][x], shBg[y][x])
-        native.drawPixels((x - 1) * CELL_W, (y - 1) * CELL_H, g)
+        native.drawPixels((x - 1) * CW, (y - 1) * CH, g)
     end
 
     local function eraseCursor()
@@ -337,7 +382,7 @@ function GfxTerm.new(native)
             return          -- never scribble into a protected region
         end
         local g = glyph(95, fg, shBg[cy][cx])          -- 95 = '_'
-        native.drawPixels((cx - 1) * CELL_W, (cy - 1) * CELL_H, g)
+        native.drawPixels((cx - 1) * CW, (cy - 1) * CH, g)
         curOn, curX, curY = true, cx, cy
     end
 
@@ -351,6 +396,62 @@ function GfxTerm.new(native)
     --- Force the caret to be redrawn - after you have painted your own pixels
     --- over the area it occupies, for instance.
     function t.refreshCursor() eraseCursor(); drawCursor() end
+
+    --- Adopt a new terminal size.
+    --
+    -- The grid is fixed when the terminal is created, so a GfxTerm does not
+    -- notice the window being resized on its own. Call this when you see a
+    -- `term_resize` event:
+    --
+    --     if ev == "term_resize" then gfx.resize() end
+    --
+    -- The shadow buffer is carried across, keeping whatever still fits, so the
+    -- caret can still erase itself correctly afterwards. The SCREEN is not
+    -- repainted - only the model is corrected - because only the caller knows
+    -- what should be on it. Redraw after calling this.
+    --
+    -- @param cols,rows optional explicit size; read from the terminal if absent
+    -- @return true if the size actually changed
+    function t.resize(cols, rows)
+        if not cols or not rows then cols, rows = native.getSize() end
+        cols, rows = math.floor(cols), math.floor(rows)
+        if cols < 1 or rows < 1 then return false end
+        if cols == COLS and rows == ROWS then return false end
+
+        eraseCursor()
+
+        for y = 1, rows do
+            local a, b, c = shCh[y], shFg[y], shBg[y]
+            if a then
+                if cols > COLS then                  -- widened: blank the new columns
+                    blankRow(a, b, c, COLS + 1, cols)
+                elseif cols < COLS then              -- narrowed: drop the tail
+                    for x = cols + 1, COLS do a[x], b[x], c[x] = nil, nil, nil end
+                end
+            else                                     -- a brand new row
+                a, b, c = {}, {}, {}
+                blankRow(a, b, c, 1, cols)
+                shCh[y], shFg[y], shBg[y] = a, b, c
+            end
+        end
+        for y = rows + 1, ROWS do                    -- shortened: drop the rows
+            shCh[y], shFg[y], shBg[y] = nil, nil, nil
+        end
+
+        COLS, ROWS = cols, rows
+        SCREEN_W, SCREEN_H = COLS * CW, ROWS * CH
+
+        if mask then                                 -- keep the mask inside the grid
+            mask.x0, mask.y0 = math.max(1, mask.x0), math.max(1, mask.y0)
+            mask.x1, mask.y1 = math.min(COLS, mask.x1), math.min(ROWS, mask.y1)
+            if mask.x1 < mask.x0 or mask.y1 < mask.y0 then mask = nil end
+        end
+        if cx > COLS + 1 then cx = COLS + 1 end
+        if cy > ROWS then cy = ROWS end
+
+        drawCursor()
+        return true
+    end
 
     -- Rasterise `text` at the cursor. fgs/bgs are per-char index arrays, or nil
     -- for the current uniform colours. Clips to the grid and around the mask.
@@ -406,19 +507,19 @@ function GfxTerm.new(native)
 
     -- Fill cell rows y0..y1 with the background colour, leaving the mask alone.
     local function fillRows(y0, y1)
-        local py, ph = (y0 - 1) * CELL_H, (y1 - y0 + 1) * CELL_H
+        local py, ph = (y0 - 1) * CH, (y1 - y0 + 1) * CH
         if not mask or y1 < mask.y0 or y0 > mask.y1 then
             shadowFill(1, COLS, y0, y1)
             native.drawPixels(0, py, bg, SCREEN_W, ph); return
         end
         shadowFill(1, mask.x0 - 1, y0, y1); shadowFill(mask.x1 + 1, COLS, y0, y1)
         shadowFill(1, COLS, y0, mask.y0 - 1); shadowFill(1, COLS, mask.y1 + 1, y1)
-        if y0 < mask.y0 then native.drawPixels(0, py, bg, SCREEN_W, (mask.y0 - y0) * CELL_H) end
-        if y1 > mask.y1 then native.drawPixels(0, mask.y1 * CELL_H, bg, SCREEN_W, (y1 - mask.y1) * CELL_H) end
+        if y0 < mask.y0 then native.drawPixels(0, py, bg, SCREEN_W, (mask.y0 - y0) * CH) end
+        if y1 > mask.y1 then native.drawPixels(0, mask.y1 * CH, bg, SCREEN_W, (y1 - mask.y1) * CH) end
         local my0, my1 = math.max(y0, mask.y0), math.min(y1, mask.y1)
-        local mpy, mph = (my0 - 1) * CELL_H, (my1 - my0 + 1) * CELL_H
-        if mask.x0 > 1 then native.drawPixels(0, mpy, bg, (mask.x0 - 1) * CELL_W, mph) end
-        if mask.x1 < COLS then native.drawPixels(mask.x1 * CELL_W, mpy, bg, (COLS - mask.x1) * CELL_W, mph) end
+        local mpy, mph = (my0 - 1) * CH, (my1 - my0 + 1) * CH
+        if mask.x0 > 1 then native.drawPixels(0, mpy, bg, (mask.x0 - 1) * CW, mph) end
+        if mask.x1 < COLS then native.drawPixels(mask.x1 * CW, mpy, bg, (COLS - mask.x1) * CW, mph) end
     end
 
     function t.clear() eraseCursor(); fillRows(1, ROWS); drawCursor() end
@@ -472,7 +573,7 @@ function GfxTerm.new(native)
             for x = 1, COLS do blankCh[x], blankFg[x], blankBg[x] = 32, fg, bg end
         end
 
-        local dy = math.abs(n) * CELL_H
+        local dy = math.abs(n) * CH
         if dy >= SCREEN_H then t.clear(); return end
         local srcY = n > 0 and dy or 0
         local dstY = n > 0 and 0 or dy

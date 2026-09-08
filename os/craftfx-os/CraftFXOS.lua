@@ -155,6 +155,20 @@ local function main()
                         gfx.blinkCursor()
                         native.setFrozen(false)
                         timer = os.startTimer(0.4)
+                    elseif ev == "term_resize" then
+                        -- A GfxTerm's grid is fixed at creation, so it has to
+                        -- be told. Then everything downstream of it - the
+                        -- window, the wallpaper, the chrome - is rebuilt to
+                        -- match; the shell redraws itself on the next write.
+                        gfx.resize()
+                        W, H, cols, rows = GfxTerm.size(native)
+                        native.setFrozen(true)
+                        drawWallpaper(native, W, H)
+                        win.reposition(2, 2, math.max(1, cols - 2), math.max(1, rows - 2))
+                        gfx.setMask(1, 1, cols, 1)
+                        decorate()
+                        win.redraw()
+                        native.setFrozen(false)
                     end
                 end
             end

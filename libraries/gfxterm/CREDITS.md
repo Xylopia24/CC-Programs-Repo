@@ -26,7 +26,8 @@ invention:
 |---|---|---|
 | Font | BDF font files, loaded at runtime via a separate `readBDFFont` module | The real ComputerCraft terminal font, embedded, so text is pixel-identical to text mode and there are no external files |
 | Rendering | Per character | Contiguous runs batched into one `drawPixels`, with a glyph cache keyed on (char, fg, bg) |
-| Grid | Derived from the font metrics | Derived from `term.getSize()`; note `getSize(2)` reports cells, not pixels |
+| Grid | Derived from the font metrics | Derived from `term.getSize()`, and updated on `term_resize` via `gfx.resize()` |
+| Font size | Any, via BDF | Any, via `setFont(data, w, h)` — but you supply the bitmaps rather than a BDF parser |
 | Mode switching | Caller's responsibility | `GfxTerm.session` restores mode, palette and redirect on every exit path, including errors and terminate |
 | Crashes | "render crashes are fatal and will crash the computer" | An error unwinds through `session` back to a working text terminal |
 | Cursor | Blink handled with timer events | Caret backed by a shadow buffer, so moving it restores the covered cell exactly |

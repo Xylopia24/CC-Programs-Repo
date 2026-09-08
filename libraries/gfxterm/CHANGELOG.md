@@ -14,6 +14,14 @@ Changes made while generalising it:
   now derived from `term.getSize()` at creation, so any terminal size works.
 - **`GfxTerm.protect` / `GfxTerm.window`**, for the `term.redirect` leak that
   silently breaks `clear()` inside a window over a graphics-mode terminal.
+- **`gfx.resize()`** - terminal resize support. The grid used to be captured at
+  creation and never revisited, so resizing the window mid-session left writes
+  clipped to the old bounds. The shadow buffer is carried across.
+- **`setFont` takes metrics**: any glyph size, not just 6x9. The decoder used to
+  hardcode nine rows of six bits, so "supply your own font" really meant "supply
+  your own 6x9 typeface". Rows are now `ceil(w/8)` bytes, big-endian, with the
+  glyph right-aligned - which is what the built-in 6x9 font already was, so it
+  decodes unchanged.
 - **A real cursor**, with the shadow buffer needed to erase it. A game never
   needs a caret; a shell is unusable without one. `blinkCursor()` and
   `refreshCursor()` are new, and moving the caret restores the cell underneath

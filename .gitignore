@@ -1,0 +1,11 @@
+# CraftOS-PC / editor noise
+.shell_history
+*.log
+logs/
+__pycache__/
+*.pyc
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini

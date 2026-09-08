@@ -1,0 +1,7 @@
+# ComputerCraft reads these files directly; keep them LF everywhere so a clone
+# on Windows does not hand CC files full of carriage returns.
+* text=auto eol=lf
+
+*.lua  text eol=lf
+*.md   text eol=lf
+*.json text eol=lf

@@ -139,6 +139,11 @@ local data, w, h = GfxTerm.getFont()
 > **Set the font before creating terminals.** `new()` captures the metrics, so a
 > GfxTerm already running is never disturbed by a later `setFont`.
 
+**[`tools/font2gfx.py`](tools/) converts an OTF/TTF into this format** — including
+synthesising the 32 sextant block glyphs, which no text font contains and which
+`pixelbox` depends on. Read its licensing note first: converting a font makes a
+derivative, and most licences do not let you publish one.
+
 ### `GfxTerm.cellToPx(col, row) -> x, y`
 
 Top-left pixel of a cell. Cells are 1-based, pixels are 0-based.

@@ -17,6 +17,12 @@ anything else in this repo.
 |---|---|
 | **[gfxterm](libraries/gfxterm/)** | Draw ordinary CC text while the screen is in **graphics mode**. A drop-in `term` replacement that rasterises text into pixels with the real ComputerCraft font, so `window.create`, `print`, and every UI library you already have keep working on top of a pixel-rendered game. *A rewrite of [MCJack123's original](https://gist.github.com/MCJack123/f6819e41a60402b8a73403542bb23820) — see its [CREDITS](libraries/gfxterm/CREDITS.md).* |
 
+### Tools
+
+| | What it does |
+|---|---|
+| **[font2gfx](libraries/gfxterm/tools/)** | Convert an OTF/TTF font into a `gfxterm` bitmap font, at any cell size. Synthesises CC's 32 sextant block glyphs rather than taking them from the font, so `pixelbox` art keeps working. Ships no fonts — see its licensing note. |
+
 ### Operating systems
 
 | | What it does |

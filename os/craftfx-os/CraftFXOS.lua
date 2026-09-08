@@ -94,7 +94,14 @@ local function main()
         -- The shell lives in a window inset by one cell, so the wallpaper shows
         -- as a border. The window clears only its own region, which is why the
         -- gradient survives every `clear` the shell performs.
-        local win = window.create(gfx, 2, 2, cols - 2, rows - 2, true)
+        -- GfxTerm.window, NOT window.create.
+        --
+        -- term.redirect copies native.getGraphicsMode onto any redirect target
+        -- that lacks one, and a window lacks one - so a plain window starts
+        -- reporting graphics mode 2, and window.clear() then bails out to
+        -- term.native().clear() without ever blanking its own lines. That is
+        -- why running `worm` in here left the shell's scrollback underneath it.
+        local win = GfxTerm.window(gfx, 2, 2, cols - 2, rows - 2, true)
 
         -- Keep text out of the border: without this, a stray full-width write
         -- would rasterise over the wallpaper.
@@ -126,16 +133,21 @@ local function main()
         -- The shell and the decoration run side by side. `parallel` resumes
         -- both on every event, so the shell still sees every keypress while the
         -- animation and the caret blink on their own timer.
-        local shellDone = false
         parallel.waitForAny(
             function()
                 shell.run("shell")
-                shellDone = true
             end,
             function()
+                -- os.pullEventRaw, NOT os.pullEvent.
+                --
+                -- parallel force-resumes every coroutine on a `terminate`
+                -- event and calls error() if any of them raises. os.pullEvent
+                -- turns terminate INTO an error, so Ctrl+T here tore the whole
+                -- OS down with a traceback through /rom/apis/parallel.lua.
+                -- Raw pulls leave terminate for the shell to handle normally.
                 local timer = os.startTimer(0.4)
-                while not shellDone do
-                    local ev, id = os.pullEvent()
+                while true do
+                    local ev, id = os.pullEventRaw()
                     if ev == "timer" and id == timer then
                         phase = phase + 0.25
                         native.setFrozen(true)

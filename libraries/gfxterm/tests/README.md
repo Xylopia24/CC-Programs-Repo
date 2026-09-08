@@ -10,6 +10,7 @@ against.
 | Suite | Covers |
 |---|---|
 | `test_shell_surface.lua` | That ordinary CC code — `print`, scrolling, `blit`, `window.create`, `textutils` — drives GfxTerm without knowing it exists. The feasibility gate for CraftFX-OS. |
+| `test_redirect_leak.lua` | The `term.redirect` mutation that silently breaks `clear()` inside a window — it asserts the leak still exists in CC, and that `GfxTerm.protect` defeats it. This is the bug that made `worm` draw over the shell's scrollback. |
 | `test_cursor.lua` | The caret and the shadow buffer behind it. The assertion that matters: moving the caret away restores the covered cell **exactly**, or a shell leaves a trail of underscores behind its prompt. |
 
 ## Running them

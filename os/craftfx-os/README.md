@@ -33,8 +33,8 @@ Two files:
 ```
 mkdir craftfx
 cd craftfx
-wget https://raw.githubusercontent.com/__GITHUB_USER__/CC-Programs-Repo/main/os/craftfx-os/CraftFXOS.lua
-wget https://raw.githubusercontent.com/__GITHUB_USER__/CC-Programs-Repo/main/libraries/gfxterm/gfxterm.lua
+wget https://raw.githubusercontent.com/Xylopia24/CC-Programs-Repo/main/os/craftfx-os/CraftFXOS.lua
+wget https://raw.githubusercontent.com/Xylopia24/CC-Programs-Repo/main/libraries/gfxterm/gfxterm.lua
 ```
 
 `CraftFXOS.lua` finds `gfxterm.lua` beside it, one directory up, or in `lib/`.

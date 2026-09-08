@@ -46,12 +46,31 @@
 --     sends `clear()` straight to `term.native()` whenever its parent claims a
 --     graphics mode, which would bypass the window's own line buffer and erase
 --     the whole screen instead of the window.
---   * `getSize(2)` returns CELLS, not pixels, so the pixel surface is derived
---     as `cols * 6` by `rows * 9`.
+--   * The pixel surface is `cols * 6` by `rows * 9`. `getSize(2)` reports it
+--     directly too (480x225 on an 80x25 terminal), but ONLY once really in
+--     mode 2 - in text mode, and in headless CraftOS-PC which never truly
+--     enters mode 2, it answers with the cell size instead. Deriving it is the
+--     reliable route.
+--   * `term.redirect` copies `native.getGraphicsMode` onto any target lacking
+--     one, which breaks `window.clear()`. See `GfxTerm.protect`.
 --   * Pixel coordinates are 0-based; cell (c, r) starts at ((c-1)*6, (r-1)*9).
 --
 -- ---------------------------------------------------------------------------
--- MIT licensed - see LICENSE at the repository root.
+-- PRIOR ART
+--
+-- gfxterm was MCJack123's idea first. The original is at
+--   https://gist.github.com/MCJack123/f6819e41a60402b8a73403542bb23820
+-- (December 2020), and the name, and the whole concept of a redirectable term
+-- that renders CC text into graphics mode, are theirs. MCJack123 also wrote
+-- CraftOS-PC and the graphics mode API this depends on.
+--
+-- This is a rewrite - different font pipeline, batched rendering, a shadow
+-- buffer and cursor, masking, and a session wrapper that cannot strand you on
+-- a black screen - but it is a descendant, not an independent invention.
+-- See CREDITS.md for a full comparison.
+--
+-- MIT licensed, published with MCJack123's encouragement. See LICENSE at the
+-- repository root.
 --
 -- The embedded font is the ComputerCraft terminal font, from CC:Tweaked's
 -- `term_font.png`. It is included so text looks identical to real text mode.
@@ -97,12 +116,45 @@ local unpack_ = table.unpack or unpack     -- CC ships both Lua 5.1 and 5.2 flav
 function GfxTerm.cellToPx(col, row) return (col - 1) * CELL_W, (row - 1) * CELL_H end
 
 --- The pixel size of the surface for a terminal, derived from its cell size.
--- `getSize(2)` reports cells rather than pixels, so it cannot be used here.
+--
+-- Derived rather than read from `getSize(2)` because that only answers in
+-- pixels once the terminal is genuinely in mode 2; before the switch, and under
+-- headless CraftOS-PC, it returns the cell size instead. `cols * 6` by
+-- `rows * 9` is correct either way.
 -- @return pixelWidth, pixelHeight, cols, rows
 function GfxTerm.size(native)
     native = native or term.native()
     local cols, rows = native.getSize()
     return cols * CELL_W, rows * CELL_H, cols, rows
+end
+
+--- Make a redirect target safe to hand to `term.redirect` while in graphics
+--- mode. Returns the same object.
+--
+-- `term.redirect` COPIES `native.getGraphicsMode` onto any target that does not
+-- have one of its own. A `window` does not have one - so the moment you
+-- redirect into a window, that window starts reporting the NATIVE graphics
+-- mode. `window.clear()` checks exactly that, and when it is truthy it bails
+-- out to `term.native().clear()` WITHOUT blanking its own lines or redrawing.
+--
+-- The visible result is that `clear()` inside the window does nothing: old text
+-- survives and whatever runs next draws on top of it. Every program that clears
+-- the screen is affected.
+--
+-- Call this on a window (or any redirect target) BEFORE redirecting to it.
+-- `term.redirect` only fills in methods that are nil, so getting there first
+-- wins.
+function GfxTerm.protect(target)
+    if target.getGraphicsMode == nil then
+        target.getGraphicsMode = function() return false end
+    end
+    return target
+end
+
+--- `window.create` plus `GfxTerm.protect`. Use this instead of `window.create`
+--- for any window living over a GfxTerm.
+function GfxTerm.window(parent, x, y, w, h, visible)
+    return GfxTerm.protect(window.create(parent, x, y, w, h, visible))
 end
 
 --- Can this terminal do graphics mode at all?

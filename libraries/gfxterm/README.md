@@ -11,10 +11,15 @@ with the **real ComputerCraft font** and pushes it as pixels, so your existing
 text UI keeps working unchanged on top of a pixel-rendered game.
 
 ```
-wget https://raw.githubusercontent.com/__GITHUB_USER__/CC-Programs-Repo/main/libraries/gfxterm/gfxterm.lua
+wget https://raw.githubusercontent.com/Xylopia24/CC-Programs-Repo/main/libraries/gfxterm/gfxterm.lua
 ```
 
 One file, no dependencies. The font is embedded.
+
+> **gfxterm was [MCJack123](https://gist.github.com/MCJack123/f6819e41a60402b8a73403542bb23820)'s
+> idea first**, and so is CraftOS-PC and the graphics mode API underneath it.
+> This is a rewrite of their December 2020 original, published with their
+> encouragement — see [CREDITS.md](CREDITS.md) for what changed and why.
 
 ---
 
@@ -100,13 +105,33 @@ colours across the switch, `leave` puts them back. Pair them, and make sure
 
 The pixel surface, derived as `cols * 6` by `rows * 9`.
 
-> Do not use `getSize(2)` for this. It reports **cells, not pixels**.
+> `getSize(2)` reports the same thing directly — but only once the terminal is
+> genuinely in mode 2. Before the switch, and under headless CraftOS-PC (which
+> never truly enters mode 2), it answers with the cell size instead. Deriving it
+> is correct either way.
+
+### `GfxTerm.protect(target) -> target`
+
+**Call this on any window before redirecting into it.** See the trap below; a
+window that skips it silently loses `clear()`.
+
+### `GfxTerm.window(parent, x, y, w, h, visible) -> window`
+
+`window.create` plus `protect`. Use it instead of `window.create` for any window
+over a GfxTerm.
 
 ### `GfxTerm.setFont(data)` / `GfxTerm.getFont()`
 
 Swap the embedded font. `data` is 256 × 9 bytes: glyph *g* occupies bytes
 `g*9+1 .. g*9+9`, one bitmask per row, bit 5 (32) = leftmost pixel of a 6-wide
 glyph.
+
+> **You can change the typeface, not the metrics.** Cells are 6 × 9 throughout —
+> that is what makes the output identical to a real CC terminal, and it is baked
+> into the glyph decoder, not just into a pair of constants. Draw whatever
+> glyphs you like inside that box; a font of a different size will not work.
+> (MCJack123's original took BDF files at arbitrary sizes — that flexibility was
+> traded away deliberately for exactness. See [CREDITS.md](CREDITS.md).)
 
 ### `GfxTerm.cellToPx(col, row) -> x, y`
 
@@ -159,6 +184,14 @@ These are not opinions; each one cost real debugging.
 - **`getGraphicsMode()` returns false on purpose.** CraftOS-PC's `window.lua`
   sends `clear()` straight to `term.native()` whenever its parent claims a
   graphics mode, which erases the whole screen instead of the window.
+- **`term.redirect` mutates your redirect target.** It copies
+  `native.getGraphicsMode` (and `drawPixels`, `setFrozen`, …) onto any target
+  that lacks them. A `window` lacks `getGraphicsMode` — so the moment you
+  redirect into one it starts reporting the **native** graphics mode, and
+  `window.clear()` bails out to `term.native().clear()` without blanking its own
+  lines or redrawing. `clear()` inside that window then does nothing: old text
+  survives and the next program draws on top of it. Use `GfxTerm.window` (or
+  call `GfxTerm.protect` before redirecting) and it cannot happen.
 - **Mouse events arrive in PIXELS in graphics mode.** Divide by 6 and 9 to get
   cells.
 - **Headless CraftOS-PC cannot really do graphics mode.** The calls succeed and
@@ -190,6 +223,11 @@ CraftOS-PC, or CC: Graphics in Minecraft. `GfxTerm.available()` tells you.
 The embedded font is the ComputerCraft terminal font from CC:Tweaked, included
 so text looks identical to real text mode. It is not my work and no ownership is
 claimed — see [FONT-NOTICE.md](FONT-NOTICE.md). Use `setFont` to supply your own.
+
+## Credits
+
+`gfxterm` originated with **MCJack123**, who also wrote CraftOS-PC and its
+graphics mode API. See [CREDITS.md](CREDITS.md).
 
 ## Licence
 

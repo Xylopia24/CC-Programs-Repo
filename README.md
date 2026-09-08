@@ -15,7 +15,7 @@ anything else in this repo.
 
 | | What it does |
 |---|---|
-| **[gfxterm](libraries/gfxterm/)** | Draw ordinary CC text while the screen is in **graphics mode**. A drop-in `term` replacement that rasterises text into pixels with the real ComputerCraft font, so `window.create`, `print`, and every UI library you already have keep working on top of a pixel-rendered game. |
+| **[gfxterm](libraries/gfxterm/)** | Draw ordinary CC text while the screen is in **graphics mode**. A drop-in `term` replacement that rasterises text into pixels with the real ComputerCraft font, so `window.create`, `print`, and every UI library you already have keep working on top of a pixel-rendered game. *A rewrite of [MCJack123's original](https://gist.github.com/MCJack123/f6819e41a60402b8a73403542bb23820) — see its [CREDITS](libraries/gfxterm/CREDITS.md).* |
 
 ### Operating systems
 
@@ -39,7 +39,7 @@ Every project can be pulled straight onto a computer with `wget`. The exact
 line is in each project's README; the shape is always:
 
 ```
-wget https://raw.githubusercontent.com/__GITHUB_USER__/CC-Programs-Repo/main/libraries/gfxterm/gfxterm.lua
+wget https://raw.githubusercontent.com/Xylopia24/CC-Programs-Repo/main/libraries/gfxterm/gfxterm.lua
 ```
 
 `http` must be enabled — it is by default in CraftOS-PC and on most servers.
@@ -76,10 +76,16 @@ where they earn their place.
 
 ## Credits
 
+**`gfxterm` was MCJack123's idea first.** The
+[original](https://gist.github.com/MCJack123/f6819e41a60402b8a73403542bb23820)
+dates from December 2020; the version here is a rewrite published with their
+encouragement. See [libraries/gfxterm/CREDITS.md](libraries/gfxterm/CREDITS.md).
+
+CraftOS-PC and its graphics mode API — which most of this repo depends on — are
+also MCJack123's (JackMacWindows).
+
 The ComputerCraft terminal font embedded in `gfxterm` comes from CC:Tweaked and
 is not my work — see [libraries/gfxterm/FONT-NOTICE.md](libraries/gfxterm/FONT-NOTICE.md).
-
-CraftOS-PC and its graphics mode API are by JackMacWindows.
 
 ## Licence
 

@@ -47,6 +47,7 @@ Requires Pillow:  python -m pip install pillow
 import argparse
 import pathlib
 import sys
+import unicodedata
 
 try:
     from PIL import Image, ImageDraw, ImageFont
@@ -252,6 +253,11 @@ def main():
         name = " ".join(str(n) for n in face.getname())
     except Exception:
         name = a.font.stem
+    # CC's charset is not Unicode and the name ends up in a terminal, so fold
+    # it to printable ASCII. NFKD splits accented letters into base + combining
+    # mark, so dropping the marks gives "Pokemon" rather than "Pok?mon".
+    name = unicodedata.normalize("NFKD", name)
+    name = "".join(c for c in name if 32 <= ord(c) < 127).strip()
 
     glyphs, have, missing, synth = [], 0, [], 0
     for slot in range(256):

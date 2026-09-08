@@ -61,7 +61,7 @@
 local GfxTerm = {}
 
 GfxTerm._VERSION = "1.0.0"
-GfxTerm._URL     = "https://github.com/__GITHUB_USER__/CC-Programs-Repo"
+GfxTerm._URL     = "https://github.com/Xylopia24/CC-Programs-Repo"
 
 -- The ComputerCraft terminal font: 256 glyphs, 9 rows each, one byte per row,
 -- bit 5 (32) = leftmost pixel of a 6-wide glyph. See FONT-NOTICE.md.

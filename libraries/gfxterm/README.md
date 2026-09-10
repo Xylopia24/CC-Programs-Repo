@@ -84,6 +84,15 @@ with no shell, so prefer this over calling `enter`/`leave` yourself.
 | `ran == false` | Setup failed; `err` says why. `body` never ran — fall back to a text path. |
 | `ok == false` | `body` raised. `err` is its traceback; rethrow with `error(err, 0)` so `"Terminated"` keeps its prefix. |
 
+It also folds mouse events from pixels back to cells for the duration — see
+`GfxTerm.foldMouse`.
+
+**Sessions nest.** Opening one inside another reuses the terminal already up
+rather than entering graphics mode a second time; without that, the inner
+`leave()` would drop the outer session to mode 0 while it still expected pixels.
+So a component can open its own session and work both standalone and inside a
+program-wide one. Only the outermost session tears anything down.
+
 ### `GfxTerm.available([native]) -> boolean`
 
 Whether this terminal can do graphics mode at all. False under vanilla
@@ -147,6 +156,76 @@ derivative, and most licences do not let you publish one.
 ### `GfxTerm.cellToPx(col, row) -> x, y`
 
 Top-left pixel of a cell. Cells are 1-based, pixels are 0-based.
+
+### `GfxTerm.frame(body)`
+
+Run `body` with the display frozen, so everything it draws presents at once.
+
+`window.lua` walks its buffer line by line, and in graphics mode each line is a
+separate `drawPixels` — so an unfrozen redraw is visibly painted from the top
+down. It also matters whenever two things must land in the same frame, such as a
+pixel widget drawn over a cell-drawn one.
+
+Depth counted, so frames nest harmlessly, and it **always** unfreezes, including
+when `body` throws — a terminal left frozen is indistinguishable from a hang.
+Outside a session, or on a terminal with no `setFrozen`, it just runs `body`.
+`GfxTerm.inFrame()` reports whether one is open.
+
+### `GfxTerm.onRepaint(fn) -> unregister`
+
+Run `fn` after every window redraw, inside the freeze.
+
+A redraw wipes anything drawn *over* the window — pixel widgets, sprite
+overlays, a chart — and this is the one correct moment to put them back. The
+library has no business knowing what your widget module is called, so it takes a
+hook:
+
+```lua
+GfxTerm.onRepaint(function() MyWidgets.repaint() end)
+```
+
+Returns a function that unregisters it again. Re-entry is guarded.
+
+### `GfxTerm.foldMouse(enable)` / `GfxTerm.mouseFolded() -> boolean`
+
+In graphics mode CraftOS-PC reports mouse events in **pixels**, not cells, which
+silently breaks every hit test written against the text terminal — a click three
+cells in arrives as `x = 18`. This folds them back to cells at the event source,
+which is the only place worth doing it: per screen means forever.
+
+`GfxTerm.session` turns it on for you, so most callers never touch this.
+Reference counted — pair every `true` with a `false`.
+
+### `GfxTerm.refreshFont()`
+
+Make a `setFont` visible on terminals that already exist.
+
+`new()` *snapshots* the font and caches rasterised glyphs, so `setFont` alone
+changes nothing on a running terminal — and a program that builds its terminal
+once at startup sees no change at all. This re-snapshots every live terminal.
+You must redraw afterwards: it changes what future writes look like, not what is
+already on screen.
+
+### `GfxTerm.clearMask()`
+
+Drop the running session's text mask. A mask set by one screen otherwise
+outlives it, leaving that rect burned on screen and every later screen quietly
+forbidden from drawing text there.
+
+### `GfxTerm.inSession() -> boolean` / `GfxTerm.sessionTerms() -> native, gfx`
+
+Whether a session is running, and its terminal pair. Sessions nest, so a
+component can ask for the ambient one rather than opening its own.
+
+### `GfxTerm.modeSettled([native]) -> boolean|nil`
+
+Whether the terminal has actually settled into graphics mode.
+
+`setGraphicsMode(2)`'s readback **lags** — `getGraphicsMode()` called straight
+afterwards still answers `false`, and only starts telling the truth once events
+have been pumped. **Never gate startup on it**; verifying the switch immediately
+is what makes a working terminal look like a broken one. `nil` means the
+terminal cannot answer.
 
 ---
 

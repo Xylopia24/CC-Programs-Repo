@@ -27,6 +27,11 @@
 --   -- text mode, palette and the previous redirect are all restored HERE,
 --   -- however the body ended - including on error or terminate.
 --
+-- Sessions nest, the mouse is folded from pixels back to cells for you, and
+-- `GfxTerm.frame` presents a whole redraw at once. If you draw your own pixels
+-- over a window, register a `GfxTerm.onRepaint` hook so they survive its
+-- redraws.
+--
 -- Everything is documented in README.md next to this file.
 --
 -- Requires: CraftOS-PC, or CC: Graphics in Minecraft. `GfxTerm.available()`
@@ -79,7 +84,11 @@
 
 local GfxTerm = {}
 
-GfxTerm._VERSION = "1.0.0"
+-- Every terminal `new()` has built, so GfxTerm.refreshFont can reach them.
+-- Weak keys: being in here must not be what keeps a terminal alive.
+local _terms = setmetatable({}, { __mode = "k" })
+
+GfxTerm._VERSION = "1.1.0"
 GfxTerm._URL     = "https://github.com/Xylopia24/CC-Programs-Repo"
 
 -- The ComputerCraft terminal font: 256 glyphs, 9 rows each, one byte per row,
@@ -136,6 +145,22 @@ end
 -- @return data, width, height
 function GfxTerm.getFont() return FONT, CELL_W, CELL_H end
 
+--- Re-take the font snapshot in every live terminal and drop their glyph caches.
+--
+-- `new()` SNAPSHOTS the font and caches rasterised glyphs, so a terminal that
+-- already exists keeps drawing the old one after `setFont` - and a program that
+-- builds its terminal once at startup therefore sees nothing change at all.
+-- Call this after `setFont` to make a font swap visible on terminals that are
+-- already running. The caller must redraw: this changes what FUTURE writes look
+-- like, not what is already on the screen.
+--
+-- The registry is weak-keyed, so being in it never keeps a terminal alive.
+function GfxTerm.refreshFont()
+    for t in pairs(_terms) do
+        if t.refreshFont then pcall(t.refreshFont) end
+    end
+end
+
 -- CC colour value <-> palette index, and blit's hex digits <-> index.
 local IDX = {}
 for k = 0, 15 do IDX[2 ^ k] = k end
@@ -158,6 +183,175 @@ function GfxTerm.size(native)
     native = native or term.native()
     local cols, rows = native.getSize()
     return cols * CELL_W, rows * CELL_H, cols, rows
+end
+
+-- ── Mouse folding ──────────────────────────────────────────────────────────
+-- In graphics mode CraftOS-PC reports mouse events in PIXELS, not cells. Every
+-- hit-test written against the text terminal silently breaks: a click 3 cells
+-- in arrives as x=18. Folding at the event source fixes every consumer at once,
+-- which is the only sane place - doing it per screen means doing it forever.
+
+local MOUSE_EVENTS = {
+    mouse_click = true, mouse_up = true, mouse_drag = true, mouse_scroll = true,
+}
+
+local _foldDepth, _realPull, _realPullRaw = 0, nil, nil
+
+local function foldMouseEvent(ev, a, x, y, ...)
+    if MOUSE_EVENTS[ev] and type(x) == "number" and type(y) == "number" then
+        return ev, a,
+               math.floor(x / CELL_W) + 1,
+               math.floor(y / CELL_H) + 1, ...
+    end
+    return ev, a, x, y, ...
+end
+
+--- Turn mouse folding on or off. Reference-counted; pair every true with a
+--- false. `GfxTerm.session` does this for you, so most callers never need it.
+function GfxTerm.foldMouse(enable)
+    if enable then
+        if _foldDepth == 0 then
+            _realPull, _realPullRaw = os.pullEvent, os.pullEventRaw
+            os.pullEvent    = function(filter) return foldMouseEvent(_realPull(filter)) end
+            os.pullEventRaw = function(filter) return foldMouseEvent(_realPullRaw(filter)) end
+        end
+        _foldDepth = _foldDepth + 1
+    elseif _foldDepth > 0 then
+        _foldDepth = _foldDepth - 1
+        if _foldDepth == 0 and _realPull then
+            os.pullEvent, os.pullEventRaw = _realPull, _realPullRaw
+            _realPull, _realPullRaw = nil, nil
+        end
+    end
+end
+
+--- Is mouse folding currently installed?
+function GfxTerm.mouseFolded() return _foldDepth > 0 end
+
+-- ── Session state ──────────────────────────────────────────────────────────
+-- Sessions are reference counted so they can NEST. Once a whole program runs
+-- inside one session, a screen that opens its own would enter graphics mode a
+-- second time, and the inner leave() would drop the outer session to mode 0
+-- while it still expected pixels. A nested session reuses the terminal that is
+-- already up instead of building another, so such a call becomes a no-op that
+-- borrows the ambient session and still works standalone.
+local _depth, _sessNative, _sessGfx = 0, nil, nil
+
+--- Is a session already running? Lets a screen decide whether to open one.
+function GfxTerm.inSession() return _depth > 0 end
+
+--- The `native, gfx` pair of the running session, or nil.
+function GfxTerm.sessionTerms() return _sessNative, _sessGfx end
+
+-- ── Atomic frames ──────────────────────────────────────────────────────────
+
+--- Run `body` with the display frozen, so everything it draws presents at once.
+--
+-- Without this a redraw presents PROGRESSIVELY: `window.lua` walks its buffer
+-- line by line and in graphics mode each line is a separate drawPixels, so an
+-- unfrozen redraw is visibly painted from the top down. It also matters when a
+-- cell-drawn widget is overdrawn by a pixel one - the cell version shows for a
+-- frame otherwise.
+--
+-- ALWAYS unfreezes, including when `body` throws: a terminal left frozen looks
+-- exactly like the program has hung. Outside a session, or on a terminal with
+-- no `setFrozen`, this just runs `body`.
+--
+-- Depth counted for the same reason sessions are: an inner frame that thawed on
+-- its own would present the outer frame's remaining work progressively, quietly
+-- undoing the thing the outer frame exists for. Only the outermost one touches
+-- the terminal.
+local _frameDepth = 0
+
+function GfxTerm.frame(body)
+    local native = _sessNative
+    if not native or type(native.setFrozen) ~= "function" then return body() end
+
+    if _frameDepth > 0 then
+        _frameDepth = _frameDepth + 1
+        local ok, err = pcall(body)
+        _frameDepth = _frameDepth - 1
+        if not ok then error(err, 0) end
+        return
+    end
+
+    _frameDepth = 1
+    native.setFrozen(true)
+    local ok, err = pcall(body)
+    _frameDepth = 0
+    pcall(native.setFrozen, false)
+    if not ok then error(err, 0) end
+end
+
+--- Is a frozen frame currently open?
+function GfxTerm.inFrame() return _frameDepth > 0 end
+
+-- ── Repaint hooks ──────────────────────────────────────────────────────────
+-- A window redraw wipes anything that was drawn OVER the window - pixel widgets,
+-- sprite overlays, a chart. Whoever owns those needs to put them back, and the
+-- only correct moment is immediately after the redraw while the freeze is still
+-- open, so the pair lands in one present.
+--
+-- Registered rather than hardcoded: this library has no business knowing what a
+-- host project calls its widget module.
+--
+--     GfxTerm.onRepaint(function() PixelWidgets.repaint() end)
+--
+-- Guarded against re-entry, since an overlay that somehow drew into a window
+-- would otherwise recurse.
+local _repaintHooks, _repainting = {}, false
+
+--- Register `fn` to run after every window redraw. Returns a function that
+--- unregisters it again.
+function GfxTerm.onRepaint(fn)
+    if type(fn) ~= "function" then error("onRepaint: expected a function", 2) end
+    _repaintHooks[#_repaintHooks + 1] = fn
+    return function()
+        for i = #_repaintHooks, 1, -1 do
+            if _repaintHooks[i] == fn then table.remove(_repaintHooks, i) end
+        end
+    end
+end
+
+local function repaintOverlays()
+    if _repainting or #_repaintHooks == 0 then return end
+    _repainting = true
+    for i = 1, #_repaintHooks do pcall(_repaintHooks[i]) end
+    _repainting = false
+end
+
+-- Wrap a window so its redraws are atomic and re-run the repaint hooks. The
+-- ordering here is already exactly right: the window has just repainted and we
+-- are still inside the freeze.
+--
+-- Deliberately NOT wrapping the invisible half of setVisible: a screen that
+-- hides its buffer and then waits - or exits without showing it again, which
+-- most exit paths do - would strand the display frozen.
+local function atomicRedraw(win)
+    local realSetVisible, realRedraw = win.setVisible, win.redraw
+
+    if realSetVisible then
+        win.setVisible = function(vis)
+            if not vis then return realSetVisible(vis) end
+            return GfxTerm.frame(function()
+                local r = realSetVisible(vis)
+                repaintOverlays()
+                return r
+            end)
+        end
+    end
+
+    if realRedraw then
+        win.redraw = function()          -- window.redraw() takes no arguments
+            return GfxTerm.frame(function()
+                local r = realRedraw()
+                repaintOverlays()
+                return r
+            end)
+        end
+    end
+
+    return win
 end
 
 --- Make a redirect target safe to hand to `term.redirect` while in graphics
@@ -186,7 +380,7 @@ end
 --- `window.create` plus `GfxTerm.protect`. Use this instead of `window.create`
 --- for any window living over a GfxTerm.
 function GfxTerm.window(parent, x, y, w, h, visible)
-    return GfxTerm.protect(window.create(parent, x, y, w, h, visible))
+    return atomicRedraw(GfxTerm.protect(window.create(parent, x, y, w, h, visible)))
 end
 
 --- Can this terminal do graphics mode at all?
@@ -201,6 +395,30 @@ end
 
 -- Palette captured across the mode switch so leave() can put it back.
 local _saved
+
+--- Has the terminal actually settled into graphics mode?
+--
+-- `setGraphicsMode(2)`'s readback LAGS: `getGraphicsMode()` called straight
+-- afterwards still answers false, and only starts telling the truth once events
+-- have been pumped. So never gate startup on it - check later, if at all.
+-- Returns nil when the terminal cannot answer.
+function GfxTerm.modeSettled(native)
+    native = native or _sessNative or term.native()
+    if type(native.getGraphicsMode) ~= "function" then return nil end
+    local answered, mode = pcall(native.getGraphicsMode)
+    if not answered then return nil end
+    return mode ~= false and mode ~= 0
+end
+
+--- Drop the text mask on the running session's terminal.
+--
+-- A mask set by one screen otherwise outlives it: the protected rect stays
+-- burned on screen and every later screen is silently forbidden from drawing
+-- text there. Call it when a screen that set a mask exits.
+function GfxTerm.clearMask()
+    if _sessGfx and _sessGfx.setMask then pcall(_sessGfx.setMask, nil) end
+end
+
 
 --- Switch the terminal into graphics mode, carrying the current 16 colours
 --- across so a themed UI keeps its palette.
@@ -238,25 +456,44 @@ end
 -- An uncaught error in graphics mode otherwise strands the user on a black
 -- screen with no shell, so prefer this over calling enter/leave yourself.
 --
+-- Sessions NEST: opening one inside another reuses the terminal already up
+-- rather than entering graphics mode twice, so a screen that opens its own
+-- session still works both standalone and inside a program-wide one.
+--
 -- @return ok, err, ran
 --   ran == false : setup failed (err says why); `body` never ran, and the
 --                  caller should fall back to a text-mode path.
 --   ok  == false : `body` raised; `err` is its traceback, ready to rethrow
 --                  with `error(err, 0)` so "Terminated" keeps its prefix.
 function GfxTerm.session(body)
+    if _depth > 0 then
+        -- Already inside one: run the body against it and change nothing.
+        _depth = _depth + 1
+        local ok, err = xpcall(body, debug.traceback, _sessNative, _sessGfx)
+        _depth = _depth - 1
+        return ok, err, true
+    end
+
     local native = term.native()
     local gfx, prev
     local okSetup, errSetup = pcall(function()
         gfx = GfxTerm.new(native)
         GfxTerm.enter(native)
         prev = term.redirect(gfx)
+        GfxTerm.foldMouse(true)      -- mouse arrives in PIXELS in graphics mode
     end)
     if not okSetup then
+        pcall(GfxTerm.foldMouse, false)
         if prev then pcall(term.redirect, prev) end
         pcall(GfxTerm.leave, native)
         return false, tostring(errSetup), false
     end
+
+    _depth, _sessNative, _sessGfx = 1, native, gfx
     local ok, err = xpcall(body, debug.traceback, native, gfx)
+    _depth, _sessNative, _sessGfx = 0, nil, nil
+
+    pcall(GfxTerm.foldMouse, false)
     pcall(term.redirect, prev)
     pcall(GfxTerm.leave, native)
     return ok, err, true
@@ -323,6 +560,15 @@ function GfxTerm.new(native)
         cache[key] = g
         return g
     end
+
+    -- Re-take the font snapshot above and drop every cached glyph. Reached
+    -- through GfxTerm.refreshFont; see there for why this is needed at all.
+    function t.refreshFont()
+        CW, CH, BPR, MASK = CELL_W, CELL_H, FONT_BPR, FONT_MASK
+        FDATA = FONT
+        cache = {}
+    end
+    _terms[t] = true
 
     --- Protect a rectangle (in CELLS) from text.
     -- Nothing is ever rasterised inside it, so a region you paint yourself with
